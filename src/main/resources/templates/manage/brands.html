@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="index">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+  <div layout:fragment="content">
+    <!-- Create or edit brand modal -->
+    <div class="modal fade" id="brandModal" tabindex="-1" aria-labelledby="brandModal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Create brand</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form
+              name="brandForm" id="brandForm"
+              enctype="multipart/form-data" method="post"
+              action="/brands/createOrUpdate" onsubmit="return verifyBrand()">
+
+              <input type="hidden" name="id" id="id">
+              <input type="hidden" name="imageUrl" id="imageUrl">
+
+              <div class="mb-3">
+                <label for="image" class="form-label">Image</label>
+                <input class="form-control form-control-sm" id="image" name="image" type="file" oninput="dirtyField(this.name)">
+                <small class="text-danger" id="imageUrlError"></small>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Preview</label>
+                <div>
+                  <img id="previewImage" class="img-thumbnail" src="" height="100" alt="preview_image">
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="name" class="col-form-label">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" oninput="dirtyField(this.name)">
+                <small class="text-danger" id="nameError"></small>
+              </div>
+              <div class="mb-3">
+                <label for="totalProducts" class="col-form-label">Total products:</label>
+                <input type="number" class="form-control" id="totalProducts" name="totalProducts" oninput="dirtyField(this.name)">
+                <small class="text-danger" id="totalProductsError"></small>
+              </div>
+              <div class="mb-3">
+                <label for="thumbnail" class="col-form-label">Thumbnail:</label>
+                <textarea class="form-control" id="thumbnail" name="thumbnail" oninput="dirtyField(this.name)"></textarea>
+                <small class="text-danger" id="thumbnailError"></small>
+              </div>
+              <div class="mb-3 form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="published" name="published" checked>
+                <label class="form-check-label" for="published">published</label>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button  type="submit" form="brandForm" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="bg-light py-3">
+      <h3 class="px-3">Brands</h3>
+
+      <!-- Filter and create or edit -->
+      <div class="d-flex justify-content-between align-items-center px-3 pb-3">
+        <div class="d-flex align-items-center">
+          <span for="filter" class="me-2">Filter</span>
+          <select class="form-select form-select-sm" name="filter" id="filter">
+            <option selected>all</option>
+            <option value="true">published</option>
+            <option value="false">un-published</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="resetDataBrand()" data-bs-toggle="modal" data-bs-target="#brandModal">Create</button>
+      </div>
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Total products</th>
+            <th>Thumbnail</th>
+            <th>Published</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="brand : ${listBrands}">
+            <td>
+              <img th:src="${brand.imagePath}" class="img-thumbnail" width="120" alt="image">
+            </td>
+            <td th:text="${brand.name}"></td>
+            <td th:text="${brand.totalProducts}"></td>
+            <td th:text="${brand.thumbnail}"></td>
+            <td th:text="${brand.published}"></td>
+            <td>
+              <div class="d-flex">
+                <button type="button" class="btn btn-warning me-2"
+                  th:onclick="fillDataBrand([[${brand}]])"
+                  data-bs-toggle="modal" data-bs-target="#brandModal">update</button>
+                <form action="/brands/delete">
+                  <input type="hidden" name="id" th:value="${brand.id}">
+                  <input type="submit" class="btn btn-danger" value="delete">
+                </form>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <th:block layout:fragment="script">
+    <script th:src="@{/js/brand.js}"></script>
+  </th:block>
+</body>
+</html>
