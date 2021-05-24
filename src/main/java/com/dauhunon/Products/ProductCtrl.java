@@ -1,5 +1,7 @@
-package com.dauhunon.Brands;
+package com.dauhunon.Products;
 
+import com.dauhunon.Brands.Brand;
+import com.dauhunon.Brands.BrandService;
 import com.dauhunon.utils.FileHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,17 +18,19 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/brands")
-public class BrandCtrl {
+@RequestMapping("/products")
+public class ProductCtrl {
+  private final ProductService productService;
   private final BrandService brandService;
 
   @Autowired
-  public BrandCtrl(BrandService brandService) {
+  public ProductCtrl(ProductService productService, BrandService brandService) {
+    this.productService = productService;
     this.brandService = brandService;
   }
 
   @GetMapping
-  public String viewBrands(
+  public String viewProducts(
     @RequestParam(name = "page", defaultValue = "1") int page,
     @RequestParam(name = "sortField", defaultValue = "createdAt") String sortField,
     @RequestParam(name = "sortDir", defaultValue = "desc") String sortDir,
@@ -35,13 +39,13 @@ public class BrandCtrl {
     @RequestParam(name = "keyword", defaultValue = "") String keyword,
     Model model
   ) {
-    Page<Brand> pageContent = brandService.listAll(page, sortField, sortDir, recordNumber, filter, keyword);
-    List<Brand> content = pageContent.getContent();
+    Page<Product> pageContent = productService.listAll(page, sortField, sortDir, recordNumber, filter, keyword);
+    List<Product> content = pageContent.getContent();
 
     int totalPages = pageContent.getTotalPages();
     int totalItems = pageContent.getNumberOfElements();
 
-    model.addAttribute("listBrands", content);
+    model.addAttribute("listProducts", content);
     model.addAttribute("page", page);
     model.addAttribute("totalPages", totalPages);
     model.addAttribute("totalItems", totalItems);
@@ -51,7 +55,7 @@ public class BrandCtrl {
     model.addAttribute("filter", filter);
     model.addAttribute("keyword", keyword);
 
-    return "manage/brands";
+    return "manage/products";
   }
 
   @PostMapping("/createOrUpdate")
@@ -59,35 +63,38 @@ public class BrandCtrl {
     @RequestParam(name = "image", required = false) MultipartFile multipartFile,
     @RequestParam(name = "id", required = false) Long id,
     @Param("name") String name,
-    @Param("totalProducts") int totalProducts,
     @Param("thumbnail") String thumbnail,
+    @Param("slug") String slug,
+    @Param("price") float price,
+    @Param("total") int total,
+    @Param("discount") float discount,
     @Param("published") boolean published
   ) throws IOException {
-    Brand brand = null;
+    Product product = null;
 
     if(id != null) {
-      brand = brandService.update(id, name, totalProducts, thumbnail, published);
+      product = productService.update(id, name, thumbnail, slug, price, total, discount, published);
     } else {
-      brand = brandService.create(name, totalProducts, thumbnail, published);
+      product = productService.create(name, thumbnail, slug, price, total, discount, published);
     }
 
     if(!multipartFile.isEmpty()) {
-      String fileName = FileHandler.getPhotosName(multipartFile, String.valueOf(brand.getId()));
-      String uploadDir = "photos/brands/";
+      String fileName = FileHandler.getPhotosName(multipartFile, String.valueOf(product.getId()));
+      String uploadDir = "photos/products/";
 
       FileHandler.saveFile(uploadDir, fileName, multipartFile);
-      brandService.assignImage(brand.getId(), fileName);
+      productService.assignImage(product.getId(), fileName);
     }
 
-    return new RedirectView("/brands/", true);
+    return new RedirectView("/products/", true);
   }
 
   @PostMapping("/delete")
   public RedirectView delete(
     @Param("id") Long id
   ) {
-    Brand brand = brandService.delete(id);
-    FileHandler.deleteFile(brand.getImagePath());
+    Product product = productService.delete(id);
+    FileHandler.deleteFile(product.getImagePath());
 
     return new RedirectView("/brands/", true);
   }
@@ -100,5 +107,11 @@ public class BrandCtrl {
     filters.put("false", "un-published");
 
     return filters;
+  }
+
+  @ModelAttribute("brands")
+  public List<Brand> getBrands() {
+    List<Brand> brands = brandService.listAll();
+    return brands;
   }
 }

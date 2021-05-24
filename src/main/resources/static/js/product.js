@@ -8,27 +8,37 @@ const schema = {
     type: 'string',
     required: true
   },
-  totalProducts: {
+  total: {
     type: 'integer',
     required: true
+  },
+  price: {
+    type: 'integer',
+    required: true
+  },
+  discount: {
+    type: 'integer'
   },
   thumbnail: {
     type: 'string',
     required: true
+  },
+  slug: {
+    type: 'string'
   }
 }
 
 const fields = Object.keys(schema).concat(['id', 'image'])
 const requiredFields = Object.keys(schema).filter(field => schema[field].required)
 
-function verifyBrand () {
+function verifyProduct () {
   return verifyForm(schema, requiredFields)
 }
 
-function resetDataBrand () {
+function resetDataProduct () {
   resetData(fields)
 }
 
-function fillDataBrand (data) {
-  fillData(fields, data, 'brands')
+function fillDataProduct (data) {
+  fillData(fields, data, 'products')
 }

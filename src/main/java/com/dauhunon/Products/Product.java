@@ -39,15 +39,25 @@ public class Product extends BaseEntity implements Serializable {
   @Column(nullable = false)
   private int total;
 
+  @Column(columnDefinition = "float default 0")
+  private float discount;
+
   @Column(columnDefinition = "boolean default true")
   private boolean published;
 
-  public Product(String name, String thumbnail, String slug, float price, String imageUrl, int total) {
+  @Transient
+  public String getImagePath() {
+    if(this.getId() == null) return null;
+    return "/photos/products/" + this.getImageUrl();
+  }
+
+  public Product(String name, String thumbnail, String slug, float price, int total, float discount, boolean published) {
     this.name = name;
     this.thumbnail = thumbnail;
     this.slug = slug;
     this.price = price;
-    this.imageUrl = imageUrl;
     this.total = total;
+    this.discount = discount;
+    this.published = published;
   }
 }

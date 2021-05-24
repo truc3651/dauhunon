@@ -6,8 +6,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -19,7 +19,7 @@ public class BrandService {
     this.brandRepo = brandRepo;
   }
 
-  public List<Brand> list() {
+  public List<Brand> listAll() {
     return brandRepo.findAll();
   }
 
@@ -28,6 +28,7 @@ public class BrandService {
     String sortField,
     String sortDir,
     int recordNumber,
+    String filter,
     String keyword){
 
     Sort sort = Sort.by(sortField);
@@ -36,7 +37,10 @@ public class BrandService {
     Pageable page = PageRequest.of(currentPage-1, recordNumber, sort);
     if(keyword != null)
       keyword = "";
-    return brandRepo.listAll(keyword, page);
+    if(filter.equals("all")) return brandRepo.listAll(keyword, page);
+
+    boolean published = Boolean.parseBoolean(filter);
+    return brandRepo.listAllWherePublished(keyword, published, page);
   }
 
   public Brand create(String name, int totalProducts, String thumbnail, boolean published) {
@@ -52,12 +56,20 @@ public class BrandService {
   public Brand update(Long id, String name, int totalProducts, String thumbnail, boolean published) {
     Brand brand = brandRepo.findById(id).orElseThrow(() -> new IllegalStateException("Non exists"));
 
+    brand.setName(name);
     brand.setTotalProducts(totalProducts);
     brand.setThumbnail(thumbnail);
     brand.setPublished(published);
 
     brandRepo.save(brand);
 
+    return brand;
+  }
+
+  public Brand delete(Long id) {
+    Brand brand = brandRepo.findById(id).orElseThrow(() -> new IllegalStateException("Non exists"));
+
+    brandRepo.deleteById(id);
     return brand;
   }
 

@@ -12,8 +12,11 @@ public interface BrandRepo extends
   JpaRepository<Brand, Long>,
   PagingAndSortingRepository<Brand, Long> {
 
-  @Query("select b from Brand b where concat(name, thumbnail, totalProducts) like %?1%")
+  @Query("select b from Brand b where concat(name, thumbnail) like %?1%")
   public Page<Brand> listAll(String keyword, Pageable page);
+
+  @Query("select b from Brand b where concat(name, thumbnail) like %?1% and published = ?2")
+  public Page<Brand> listAllWherePublished(String keyword, boolean published, Pageable page);
 
   @Query("select b from Brand b where lower(b.name) = ?1")
   public Brand findByName(String name);

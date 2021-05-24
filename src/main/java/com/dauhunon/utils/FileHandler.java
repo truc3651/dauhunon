@@ -3,6 +3,7 @@ package com.dauhunon.utils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -39,5 +40,15 @@ public class FileHandler {
     String fileName = prefixFileName + "." + typeOfPhoto;
 
     return fileName;
+  }
+
+  public static void deleteFile(String pathFile) {
+    String workingDir = Paths.get("")
+      .toAbsolutePath()
+      .toString();
+    workingDir = workingDir.replace("\\", "/");
+
+    File file = new File(workingDir + pathFile);
+    file.delete();
   }
 }
