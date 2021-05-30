@@ -29,7 +29,8 @@ public class BrandService {
     String sortDir,
     int recordNumber,
     String filter,
-    String keyword){
+    String keyword
+  ){
 
     Sort sort = Sort.by(sortField);
     sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
@@ -43,40 +44,30 @@ public class BrandService {
     return brandRepo.listAllWherePublished(keyword, published, page);
   }
 
-  public Brand create(String name, int totalProducts, String thumbnail, boolean published) {
+  public Brand save(Long id, String name, int totalProducts, String thumbnail, boolean published) {
     Brand brandByName = brandRepo.findByName(name.toLowerCase());
-    if(brandByName != null) throw new IllegalStateException("Name taken");
+    if(brandByName != null) throw new IllegalStateException("Brand name taken");
 
     Brand brand = new Brand(name, totalProducts, thumbnail, published);
-    brandRepo.save(brand);
-
-    return brand;
-  }
-
-  public Brand update(Long id, String name, int totalProducts, String thumbnail, boolean published) {
-    Brand brand = brandRepo.findById(id).orElseThrow(() -> new IllegalStateException("Non exists"));
-
-    brand.setName(name);
-    brand.setTotalProducts(totalProducts);
-    brand.setThumbnail(thumbnail);
-    brand.setPublished(published);
-
+    if(id != null) {
+      brandRepo.findById(id).orElseThrow(() -> new IllegalStateException("Brand non exists"));
+      brand.setId(id);
+    }
     brandRepo.save(brand);
 
     return brand;
   }
 
   public Brand delete(Long id) {
-    Brand brand = brandRepo.findById(id).orElseThrow(() -> new IllegalStateException("Non exists"));
-
+    Brand brand = brandRepo.findById(id).orElseThrow(() -> new IllegalStateException("Brand non exists"));
     brandRepo.deleteById(id);
+
     return brand;
   }
 
   public void assignImage(Long id, String imageUrl) {
-    Brand brand = brandRepo.findById(id).orElseThrow(() -> new IllegalStateException("Non exists"));
+    Brand brand = brandRepo.findById(id).orElseThrow(() -> new IllegalStateException("Brand non exists"));
     brand.setImageUrl(imageUrl);
-
     brandRepo.save(brand);
   }
 }

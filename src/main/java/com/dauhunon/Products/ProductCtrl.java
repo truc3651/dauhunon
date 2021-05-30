@@ -61,6 +61,7 @@ public class ProductCtrl {
   @PostMapping("/createOrUpdate")
   public RedirectView createOrUpdate(
     @RequestParam(name = "image", required = false) MultipartFile multipartFile,
+    @Param("brandId") Long brandId,
     @RequestParam(name = "id", required = false) Long id,
     @Param("name") String name,
     @Param("thumbnail") String thumbnail,
@@ -70,43 +71,50 @@ public class ProductCtrl {
     @Param("discount") float discount,
     @Param("published") boolean published
   ) throws IOException {
-    Product product = null;
 
-    if(id != null) {
-      product = productService.update(id, name, thumbnail, slug, price, total, discount, published);
-    } else {
-      product = productService.create(name, thumbnail, slug, price, total, discount, published);
-    }
+    Product product = productService.save(brandId, id, name, thumbnail, slug, price, total, discount, published);
 
     if(!multipartFile.isEmpty()) {
-      String fileName = FileHandler.getPhotosName(multipartFile, String.valueOf(product.getId()));
-      String uploadDir = "photos/products/";
+      FileHandler.deleteFile(product.getPublicId());
 
-      FileHandler.saveFile(uploadDir, fileName, multipartFile);
-      productService.assignImage(product.getId(), fileName);
+      Map uploadResult = FileHandler.uploadFile(multipartFile, "products", product.getId()+"");
+      String secureUrl = (String) uploadResult.get("secure_url");
+
+      productService.assignImage(product.getId(), secureUrl);
     }
-
     return new RedirectView("/products/", true);
   }
 
   @PostMapping("/delete")
   public RedirectView delete(
     @Param("id") Long id
-  ) {
-    Product product = productService.delete(id);
-    FileHandler.deleteFile(product.getImagePath());
+  ) throws IOException {
 
-    return new RedirectView("/brands/", true);
+    Product product = productService.delete(id);
+    FileHandler.deleteFile(product.getPublicId());
+
+    return new RedirectView("/products/", true);
   }
 
   @ModelAttribute("filters")
   public Map<String, String> getFilters() {
     Map<String, String> filters = new HashMap<>();
+
     filters.put("all","all");
     filters.put("true", "published");
     filters.put("false", "un-published");
 
     return filters;
+  }
+
+  @GetMapping("/{id}")
+  public String viewDetailProduct(
+    @PathVariable ("id") Long id,
+    Model model
+  ) {
+    Product product = productService.get(id);
+    model.addAttribute("product", product);
+    return "products/detail";
   }
 
   @ModelAttribute("brands")

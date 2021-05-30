@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="layouts/blank">
+<head>
+  <meta charset="UTF-8">
+  <title>dauhunon</title>
+</head>
+<body class="bg-white">
+  <div layout:fragment="content">
+    <div class="jumbotron bg-light shadow-sm rounded p-5">
+      <form th:object="${user}"
+        action="/register" method="post"
+        onsubmit="return verifyRegister()"
+        id="registerForm" name="registerForm">
+        <h4 class="text-center">Register</h4>
+
+        <div class="form-group mb-3">
+          <label for="fullName">Fullname:</label>
+          <input type="text" th:field="*{fullName}" class="form-control" />
+          <small class="text-danger" id="fullNameError"></small>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="email">Email:</label>
+          <input type="text" th:field="*{email}" class="form-control" autofocus />
+          <small class="text-danger" id="errEmail"></small>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="username">Username:</label>
+          <input type="text" th:field="*{username}" class="form-control" />
+          <small class="text-danger" id="usernameError"></small>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="password">Password:</label>
+          <div class="input-group mb-3">
+            <input type="password" th:field="*{password}" class="form-control pwd" />
+            <button type="button" class="input-group-text" id="showPwd">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <small class="text-danger" id="passwordError"></small>
+        </div>
+
+        <div class="form-group mb-3">
+          <label>Confirm password:</label>
+          <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" oninput="isPasswordMatched(this)" />
+          <small class="text-danger" id="confirmPasswordError"></small>
+        </div>
+
+        <div class="form-group d-grid gap-2 mb-3">
+          <button type="submit" class="btn btn-primary btn-block">Submit</button>
+        </div>
+      </form>
+
+      <div class="form-group text-center mt-3">
+      <span class="text-secondary">Already have an account?
+          <a th:href="@{/login}" class="text-info">login now</a>
+      </span>
+    </div>
+    </div>
+  </div>
+</body>
+</html>
+
+
+
+
+
+

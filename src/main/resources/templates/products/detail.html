@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layouts/main">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${product.thumbnail}"></title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="row">
+    <div class="col-4">
+      <img th:src="${product.imagePath}" class="img-thumbnail" width="120" alt="image_product">
+    </div>
+    <div class="col-8">
+      <p>Price: <span th:text="${product.price}"></span></p>
+      <button class="btn btn-danger" th:onclick="takeProduct([[${product}]])">Buy now</button>
+      <button class="btn btn-danger" th:onclick="cleanLocal()">Buy now</button>
+    </div>
+  </div>
+</div>
+
+<th:block layout:fragment="script">
+  <script th:src="@{/js/product.js}"></script>
+</th:block>
+</body>
+</html>

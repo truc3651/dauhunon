@@ -1,4 +1,7 @@
 const schema = {
+  id: {
+    type: 'integer'
+  },
   imageUrl: {
     type: 'string',
     required: true,
@@ -41,4 +44,26 @@ function resetDataProduct () {
 
 function fillDataProduct (data) {
   fillData(fields, data, 'products')
+}
+
+function takeProduct(data) {
+  const products = JSON.parse(localStorage.getItem("products")) || [];
+  const product =
+  products.filter((product) => product?.id === data.id)[0] || null;
+
+  if (!product) products.push(data);
+  else product.total += 1
+  localStorage.setItem("products", JSON.stringify(products));
+
+  products.forEach(product => {
+      console.log(product?.total)
+  });
+}
+
+function cleanLocal() {
+console.log("hello from clear")
+  localStorage.removeItem("products");
+  localStorage.removeItem("totalProducts");
+
+
 }

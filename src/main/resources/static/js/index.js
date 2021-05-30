@@ -6,10 +6,15 @@ $(function(){
     $('#imageUrlError').text('')
   })
 
-  $('.hierarchy-select').hierarchySelect({
-    hierarchy: false,
-    width: 'auto'
-  });
+//  $('.hierarchy-select').hierarchySelect({
+//    hierarchy: false,
+//    width: 'auto'
+//  });
+
+ $("#logoutLink").click(function(e) {
+      e.preventDefault()
+      document.logoutForm.submit()
+  })
 });
 
 function dirtyField (nameField, label) {
@@ -53,7 +58,7 @@ function fillData (fields, data, photoDir) {
     $(`#${field}`).val(data[field])
     $(`#${field}Error`).text('')
   })
-  $('#previewImage').attr('src', `/photos/${photoDir}/` + $('#imageUrl').val())
+  $('#previewImage').attr('src', $('#imageUrl').val())
   $('#published').attr('checked', data.published)
   $('#action').text('Edit')
 }

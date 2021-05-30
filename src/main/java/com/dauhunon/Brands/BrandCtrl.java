@@ -63,20 +63,16 @@ public class BrandCtrl {
     @Param("thumbnail") String thumbnail,
     @Param("published") boolean published
   ) throws IOException {
-    Brand brand = null;
 
-    if(id != null) {
-      brand = brandService.update(id, name, totalProducts, thumbnail, published);
-    } else {
-      brand = brandService.create(name, totalProducts, thumbnail, published);
-    }
+    Brand brand = brandService.save(id, name, totalProducts, thumbnail, published);
 
     if(!multipartFile.isEmpty()) {
-      String fileName = FileHandler.getPhotosName(multipartFile, String.valueOf(brand.getId()));
-      String uploadDir = "photos/brands/";
+      FileHandler.deleteFile(brand.getPublicId());
 
-      FileHandler.saveFile(uploadDir, fileName, multipartFile);
-      brandService.assignImage(brand.getId(), fileName);
+      Map uploadResult = FileHandler.uploadFile(multipartFile, "brands", brand.getId()+"");
+      String secureUrl = (String) uploadResult.get("secure_url");
+
+      brandService.assignImage(brand.getId(), secureUrl);
     }
 
     return new RedirectView("/brands/", true);
@@ -85,9 +81,10 @@ public class BrandCtrl {
   @PostMapping("/delete")
   public RedirectView delete(
     @Param("id") Long id
-  ) {
+  ) throws IOException {
+
     Brand brand = brandService.delete(id);
-    FileHandler.deleteFile(brand.getImagePath());
+    FileHandler.deleteFile(brand.getPublicId());
 
     return new RedirectView("/brands/", true);
   }
@@ -95,6 +92,7 @@ public class BrandCtrl {
   @ModelAttribute("filters")
   public Map<String, String> getFilters() {
     Map<String, String> filters = new HashMap<>();
+
     filters.put("all","all");
     filters.put("true", "published");
     filters.put("false", "un-published");

@@ -2,7 +2,7 @@
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="index">
+      layout:decorate="layouts/main">
 <head>
   <meta charset="UTF-8">
   <title>Brands</title>
@@ -122,7 +122,7 @@
         <tbody>
           <tr th:each="brand : ${listBrands}">
             <td>
-              <img th:src="${brand.imagePath}" class="img-thumbnail" width="120" alt="image">
+              <img th:src="${brand.imageUrl}" class="img-thumbnail" width="120" alt="image">
             </td>
             <td th:text="${brand.name}"></td>
             <td th:text="${brand.totalProducts}"></td>
@@ -133,8 +133,8 @@
             <td>
               <div class="d-flex">
                 <button type="button" class="btn btn-warning me-2"
-                  th:onclick="fillDataBrand([[${brand}]])"
-                  data-bs-toggle="modal" data-bs-target="#brandModal">update</button>
+                        th:onclick="fillDataBrand([[${brand}]])"
+                        data-bs-toggle="modal" data-bs-target="#brandModal">update</button>
                 <form th:action="@{'/brands/delete/?id=' + ${brand.id}}" method="post">
                   <button
                     onclick="return confirm('Are you sure wanna delete this record?')"

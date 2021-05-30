@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layouts/main">
+<head>
+  <meta charset="UTF-8">
+  <title>Brands</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <!-- Main content -->
+  <div class="container mx-5 px-5 my-4" id="products">
+    <div class="row">
+      <h4 class="my-3">Cart (<span id="totalProducts"></span> items)</h4>
+      <div class="col-8" id="productsContainer">
+      </div>
+      <div class="col-4">
+        <h4>The total amount of</h4>
+        <table class="w-100">
+          <tr>
+            <td class="py-2">Temporary amount</td>
+            <td class="float-end" id="temporaryAmount">107.95</td>
+          </tr>
+          <tr class="my-2">
+            <td class="py-2">Shipping</td>
+            <td class="float-end">
+              <select class="form-select form-select-sm" id="shippingPrices">
+                <option value="10000" selected>GHN</option>
+                <option value="20000">GHTK</option>
+                <option value="30000">DHN</option>
+              </select>
+            </td>
+          </tr>
+          <tr class="border-bottom border-secondary">
+            <td></td>
+            <td class="float-end text-muted pb-1" id="shippingPrice"></td>
+          </tr>
+          <tr class="my-2 ">
+            <td class="py-2 "><b>The total amount of <br> (including VAT)</b></td>
+            <td class="float-end ">
+              <b id="totalAmount"></b>
+            </td>
+          </tr>
+        </table>
+        <div class="d-grid gap-2 my-2 ">
+          <button class="btn btn-primary ">Go to checkout</button>
+          <button class="btn d-flex justify-content-between " data-bs-toggle="collapse " data-bs-target="#discount " aria-expanded="false " aria-controls="discount ">
+            <div>Add a discount code (Optional)</div>
+            <div>
+              <i class="fas fa-chevron-down "></i>
+            </div>
+          </button>
+          <div class="collapse " id="discount ">
+            <input type="text " class="form-control " id="discountCode " placeholder="Enter discount code ">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block layout:fragment="script">
+  <script th:src="@{/js/brand.js}"></script>
+</th:block>
+</body>
+</html>

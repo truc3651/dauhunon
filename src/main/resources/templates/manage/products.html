@@ -2,359 +2,362 @@
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="index">
+      layout:decorate="layouts/main">
 <head>
   <meta charset="UTF-8">
   <title>Products</title>
 </head>
 <body>
-<div layout:fragment="content">
-  <!-- Create or edit product modal -->
-  <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModal" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="productModalLabel"><span id="action"></span> product</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form
-            name="productForm" id="productForm"
-            enctype="multipart/form-data" method="post"
-            action="/products/createOrUpdate" onsubmit="return verifyProduct()">
+  <div layout:fragment="content">
+    <!-- Create or edit product modal -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="productModalLabel"><span id="action"></span> product</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form
+              name="productForm" id="productForm"
+              enctype="multipart/form-data" method="post"
+              action="/products/createOrUpdate" onsubmit="return verifyProduct()">
 
-            <input type="hidden" name="id" id="id">
-            <input type="hidden" id="imageUrl">
+              <input type="hidden" name="id" id="id">
+              <input type="hidden" id="imageUrl">
 
-            <div class="mb-3">
-              <label for="image" class="form-label">Image</label>
-              <input class="form-control form-control-sm" id="image" name="image" type="file" oninput="dirtyField(this.name)">
-              <small class="text-danger" id="imageUrlError"></small>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Preview</label>
-              <div>
-                <img id="previewImage" class="img-thumbnail" src="" width="120" alt="preview_image">
+              <div class="mb-3">
+                <label for="image" class="form-label">Image</label>
+                <input class="form-control form-control-sm" id="image" name="image" type="file" oninput="dirtyField(this.name)">
+                <small class="text-danger" id="imageUrlError"></small>
               </div>
-            </div>
-            <div class="mb-3">
-              <label for="brand" class="col-form-label">Brand:</label>
-              <select class="form-select" name="brand" id="brand">
-                <option
-                  th:each="brand : ${brands}"
-                  th:value="${brand.id}"
-                  th:text="${brand.name}">
-                </option>
-              </select>
-              <small class="text-danger" id="brandIdError"></small>
-            </div>
-            <div class="mb-3">
-              <label for="name" class="col-form-label">Name:</label>
-              <input type="text" class="form-control" id="name" name="name" oninput="dirtyField(this.name)">
-              <small class="text-danger" id="nameError"></small>
-            </div>
-            <div class="mb-3">
-              <label for="total" class="col-form-label">Total:</label>
-              <input type="number" class="form-control" id="total" name="total" oninput="dirtyField(this.name)">
-              <small class="text-danger" id="totalError"></small>
-            </div>
-            <div class="mb-3">
-              <label for="price" class="col-form-label">Price:</label>
-              <input type="number" class="form-control" id="price" name="price" oninput="dirtyField(this.name)">
-              <small class="text-danger" id="priceError"></small>
-            </div>
-            <div class="mb-3">
-              <label for="discount" class="col-form-label">Discount:</label>
-              <input type="number" class="form-control" id="discount" name="discount" oninput="dirtyField(this.name)">
-              <small class="text-danger" id="discountError"></small>
-            </div>
-            <div class="mb-3">
-              <label for="thumbnail" class="col-form-label">Thumbnail:</label>
-              <textarea class="form-control" id="thumbnail" name="thumbnail" oninput="dirtyField(this.name)"></textarea>
-              <small class="text-danger" id="thumbnailError"></small>
-            </div>
-            <div class="mb-3">
-              <label for="slug" class="col-form-label">Slug:</label>
-              <textarea class="form-control" id="slug" name="slug" oninput="dirtyField(this.name)"></textarea>
-              <small class="text-danger" id="slugError"></small>
-            </div>
-            <div class="mb-3 form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="published" name="published" checked>
-              <label class="form-check-label" for="published">published</label>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button  type="submit" form="productForm" class="btn btn-primary">Save</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main content -->
-  <div class="bg-light py-3">
-    <h3 class="px-3">Products</h3>
-
-    <!-- Filter and create or edit -->
-    <div class="d-flex justify-content-between align-items-center px-3">
-      <div class="d-flex align-items-center">
-        <div class="d-flex align-items-center me-2">
-          <span for="filter" class="me-2">Filter</span>
-          <select class="form-select form-select-sm" name="filter" id="filter" onchange="window.location=this.options[this.selectedIndex].value">
-            <option
-              th:each="f : ${filters}"
-              th:value="@{'/products' +
-                            '?page=1' +
-                            '&sortField=' + ${sortField} +
-                            '&sortDir=' + ${sortDir} +
-                            '&recordNumber=' + ${recordNumber} +
-                            '&filter=' + ${f.key} +
-                            '&keyword=' + ${keyword}}"
-              th:text="${f.value}"
-              th:selected="${f.key==filter}">
-            </option>
-          </select>
-        </div>
-        <div class="d-flex align-items-center">
-          <span for="entities" class="me-2">Show</span>
-          <select name="recordNumber" class="form-select form-select-sm" onchange="window.location=this.options[this.selectedIndex].value">
-            <option th:each="i : ${#numbers.sequence(5, 20, 5)}" th:text="${i}"
-                    th:value="@{'/products' +
-                                  '?page=1' +
-                                  '&sortField=' + ${sortField} +
-                                  '&sortDir=' + ${sortDir} +
-                                  '&recordNumber=' + ${i} +
-                                  '&filter=' + ${filter} +
-                                  '&keyword=' + ${keyword}}"
-                    th:selected="${i==recordNumber}"></option>
-            <span for="entities" class="ms-2">entities</span>
-          </select>
-        </div>
-      </div>
-      <button type="button" class="btn btn-primary" onclick="resetDataProduct()" data-bs-toggle="modal" data-bs-target="#productModal">Create</button>
-    </div>
-
-    <table class="table table-striped py-3">
-      <thead>
-      <tr>
-        <th>Image</th>
-        <th>Name</th>
-        <th>Total</th>
-        <th>Price</th>
-        <th>Discount</th>
-        <th>Published</th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="product : ${listProducts}">
-        <td>
-          <img th:src="${product.imagePath}" class="img-thumbnail" width="120" alt="image">
-        </td>
-        <td th:text="${product.name}"></td>
-        <td th:text="${product.total}"></td>
-        <td th:text="${product.price}"></td>
-        <td th:text="${product.discount}"></td>
-        <td>
-          <i th:if="${product.published}" class="fas fa-check text-success fa-lg"></i>
-          <i th:th:unless="${product.published}" class="fas fa-times text-danger fa-lg"></i>
-        </td>
-        <td>
-          <div class="d-flex">
-            <button type="button" class="btn btn-warning me-2"
-                    th:onclick="fillDataProduct([[${product}]])"
-                    data-bs-toggle="modal" data-bs-target="#productModal">update</button>
-            <form th:action="@{'/products/delete/?id=' + ${product.id}}" method="post">
-              <button
-                onclick="return confirm('Are you sure wanna delete this record?')"
-                class="btn btn-danger ">
-                delete
-              </button>
+              <div class="mb-3">
+                <label class="form-label">Preview</label>
+                <div>
+                  <img id="previewImage" class="img-thumbnail" src="" width="120" alt="preview_image">
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="brandId" class="col-form-label">Brand:</label>
+                <span th:text="${brands[0].id}"></span>
+                <select class="form-select" name="brandId" id="brandId">
+                  <option
+                    th:each="brand : ${brands}"
+                    th:value="${brand.id}"
+                    th:text="${brand.name}"
+                    selected>
+                  </option>
+  <!--                th:selected="${brand.id==brands[0].id}"-->
+                </select>
+                <small class="text-danger" id="brandIdError"></small>
+              </div>
+              <div class="mb-3">
+                <label for="name" class="col-form-label">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" oninput="dirtyField(this.name)">
+                <small class="text-danger" id="nameError"></small>
+              </div>
+              <div class="mb-3">
+                <label for="total" class="col-form-label">Total:</label>
+                <input type="number" class="form-control" id="total" name="total" oninput="dirtyField(this.name)">
+                <small class="text-danger" id="totalError"></small>
+              </div>
+              <div class="mb-3">
+                <label for="price" class="col-form-label">Price:</label>
+                <input type="number" class="form-control" id="price" name="price" oninput="dirtyField(this.name)">
+                <small class="text-danger" id="priceError"></small>
+              </div>
+              <div class="mb-3">
+                <label for="discount" class="col-form-label">Discount:</label>
+                <input type="number" class="form-control" id="discount" name="discount" oninput="dirtyField(this.name)">
+                <small class="text-danger" id="discountError"></small>
+              </div>
+              <div class="mb-3">
+                <label for="thumbnail" class="col-form-label">Thumbnail:</label>
+                <textarea class="form-control" id="thumbnail" name="thumbnail" oninput="dirtyField(this.name)"></textarea>
+                <small class="text-danger" id="thumbnailError"></small>
+              </div>
+              <div class="mb-3">
+                <label for="slug" class="col-form-label">Slug:</label>
+                <textarea class="form-control" id="slug" name="slug" oninput="dirtyField(this.name)"></textarea>
+                <small class="text-danger" id="slugError"></small>
+              </div>
+              <div class="mb-3 form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="published" name="published" checked>
+                <label class="form-check-label" for="published">published</label>
+              </div>
             </form>
           </div>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button  type="submit" form="productForm" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <!-- PAGINATION -->
-    <div class="d-flex justify-content-between px-3">
-      <p>All records: [[${totalItems}]]</p>
-      <ul class="pagination">
-        <!-- First -->
-        <li th:class="'page-item '+${page == 1 ? 'disabled' : ''}">
-          <a class="page-link"
-             th:href="@{'/products' +
-                        '?page=1'+
-                        '&sortField=' + ${sortField} +
-                        '&sortDir=' + ${sortDir} +
-                        '&recordNumber=' + ${recordNumber} +
-                        '&filter=' + ${filter} +
-                        '&keyword=' + ${keyword}}">
-            <i class="fas fa-angle-left"></i>
-          </a>
-        </li>
-        <!-- Previous -->
-        <li th:class="'page-item '+${page == 1 ? 'disabled' : ''}">
-          <a class="page-link"
-             th:href="@{'/products' +
-                        '?page=' + ${page - 1} +
-                        '&sortField=' + ${sortField} +
-                        '&sortDir=' + ${sortDir} +
-                        '&recordNumber=' + ${recordNumber} +
-                        '&filter=' + ${filter} +
-                        '&keyword=' + ${keyword}}">
-            <i class="fas fa-angle-double-left"></i>
-          </a>
-        </li>
+    <!-- Main content -->
+    <div class="bg-light py-3">
+      <h3 class="px-3">Products</h3>
 
-        <th:block th:if="${totalPages == 0}">
-          <li class="page-item active">
+      <!-- Filter and create or edit -->
+      <div class="d-flex justify-content-between align-items-center px-3">
+        <div class="d-flex align-items-center">
+          <div class="d-flex align-items-center me-2">
+            <span for="filter" class="me-2">Filter</span>
+            <select class="form-select form-select-sm" name="filter" id="filter" onchange="window.location=this.options[this.selectedIndex].value">
+              <option
+                th:each="f : ${filters}"
+                th:value="@{'/products' +
+                              '?page=1' +
+                              '&sortField=' + ${sortField} +
+                              '&sortDir=' + ${sortDir} +
+                              '&recordNumber=' + ${recordNumber} +
+                              '&filter=' + ${f.key} +
+                              '&keyword=' + ${keyword}}"
+                th:text="${f.value}"
+                th:selected="${f.key==filter}">
+              </option>
+            </select>
+          </div>
+          <div class="d-flex align-items-center">
+            <span for="entities" class="me-2">Show</span>
+            <select name="recordNumber" class="form-select form-select-sm" onchange="window.location=this.options[this.selectedIndex].value">
+              <option th:each="i : ${#numbers.sequence(5, 20, 5)}" th:text="${i}"
+                      th:value="@{'/products' +
+                                    '?page=1' +
+                                    '&sortField=' + ${sortField} +
+                                    '&sortDir=' + ${sortDir} +
+                                    '&recordNumber=' + ${i} +
+                                    '&filter=' + ${filter} +
+                                    '&keyword=' + ${keyword}}"
+                      th:selected="${i==recordNumber}"></option>
+              <span for="entities" class="ms-2">entities</span>
+            </select>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="resetDataProduct()" data-bs-toggle="modal" data-bs-target="#productModal">Create</button>
+      </div>
+
+      <table class="table table-striped py-3">
+        <thead>
+        <tr>
+          <th>Image</th>
+          <th>Name</th>
+          <th>Total</th>
+          <th>Price</th>
+          <th>Discount</th>
+          <th>Published</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="product : ${listProducts}">
+          <td>
+            <img th:src="${product.imageUrl}" class="img-thumbnail" width="120" alt="image">
+          </td>
+          <td th:text="${product.name}"></td>
+          <td th:text="${product.total}"></td>
+          <td th:text="${product.price}"></td>
+          <td th:text="${product.discount}"></td>
+          <td>
+            <i th:if="${product.published}" class="fas fa-check text-success fa-lg"></i>
+            <i th:th:unless="${product.published}" class="fas fa-times text-danger fa-lg"></i>
+          </td>
+          <td>
+            <div class="d-flex">
+              <button type="button" class="btn btn-warning me-2"
+                th:onclick="fillDataProduct([[${product}]])"
+                data-bs-toggle="modal" data-bs-target="#productModal">update</button>
+              <form th:action="@{'/products/delete/?id=' + ${product.id}}" method="post">
+                <button
+                  onclick="return confirm('Are you sure wanna delete this record?')"
+                  class="btn btn-danger ">
+                  delete
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <!-- PAGINATION -->
+      <div class="d-flex justify-content-between px-3">
+        <p>All records: [[${totalItems}]]</p>
+        <ul class="pagination">
+          <!-- First -->
+          <li th:class="'page-item '+${page == 1 ? 'disabled' : ''}">
             <a class="page-link"
                th:href="@{'/products' +
-                          '?page=1' +
+                          '?page=1'+
                           '&sortField=' + ${sortField} +
                           '&sortDir=' + ${sortDir} +
                           '&recordNumber=' + ${recordNumber} +
                           '&filter=' + ${filter} +
-                          '&keyword=' + ${keyword}}"
-               th:text="1">page index</a>
+                          '&keyword=' + ${keyword}}">
+              <i class="fas fa-angle-left"></i>
+            </a>
           </li>
-        </th:block>
+          <!-- Previous -->
+          <li th:class="'page-item '+${page == 1 ? 'disabled' : ''}">
+            <a class="page-link"
+               th:href="@{'/products' +
+                          '?page=' + ${page - 1} +
+                          '&sortField=' + ${sortField} +
+                          '&sortDir=' + ${sortDir} +
+                          '&recordNumber=' + ${recordNumber} +
+                          '&filter=' + ${filter} +
+                          '&keyword=' + ${keyword}}">
+              <i class="fas fa-angle-double-left"></i>
+            </a>
+          </li>
 
-        <th:block th:if="${totalPages <= 10 && totalPages > 0}">
-          <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
-            <li
-              th:class="'page-item '+${page == i ? 'active' : ''}">
+          <th:block th:if="${totalPages == 0}">
+            <li class="page-item active">
               <a class="page-link"
                  th:href="@{'/products' +
-                            '?page=' + ${i} +
+                            '?page=1' +
                             '&sortField=' + ${sortField} +
                             '&sortDir=' + ${sortDir} +
                             '&recordNumber=' + ${recordNumber} +
                             '&filter=' + ${filter} +
                             '&keyword=' + ${keyword}}"
-                 th:text="${i}">page index</a>
+                 th:text="1">page index</a>
             </li>
           </th:block>
-        </th:block>
 
-        <th:block th:if="${totalPages > 10}">
-          <th:block th:if="${page <= 5 || page >= totalPages - 4}">
-            <span th:each="i : ${#numbers.sequence(1, 5)}">
-                <li th:class="'page-item ' + ${page == i ? 'active' : ''}">
-                    <a class="page-link"
-                       th:href="@{'/products' +
-                                  '?page=' + ${page - 1} +
-                                  '&sortField=' + ${i} +
-                                  '&sortDir=' + ${sortDir} +
-                                  '&recordNumber=' + ${recordNumber} +
-                                  '&filter=' + ${filter} +
-                                  '&keyword=' + ${keyword}}"
-                       th:text="${i}">page index</a>
-                </li>
-            </span>
-
-            <li class="page-item">
-              <a class="page-link"
-                 th:href="@{'/products?page=6' +
-                            '&sortField=' + ${sortField} +
-                            '&sortDir=' + ${sortDir} +
-                            '&recordNumber=' + ${recordNumber} +
-                            '&filter=' + ${filter} +
-                            '&keyword=' + ${keyword}}">...</a>
-            </li>
-
-            <span class="page-item" th:each="i : ${#numbers.sequence(totalPages - 4, page)}">
-                <li th:class="'page-item '+${page == i ? 'active' : ''}">
-                    <a class="page-link"
-                       th:href="@{'/products' +
-                                  '?page=' + ${page - 1} +
-                                  '&sortField=' + ${sortField} +
-                                  '&sortDir=' + ${sortDir} +
-                                  '&recordNumber=' + ${recordNumber} +
-                                  '&filter=' + ${filter} +
-                                  '&keyword=' + ${keyword}}"
-                       th:text="${i}">page index</a>
-                </li>
-            </span>
+          <th:block th:if="${totalPages <= 10 && totalPages > 0}">
+            <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
+              <li
+                th:class="'page-item '+${page == i ? 'active' : ''}">
+                <a class="page-link"
+                   th:href="@{'/products' +
+                              '?page=' + ${i} +
+                              '&sortField=' + ${sortField} +
+                              '&sortDir=' + ${sortDir} +
+                              '&recordNumber=' + ${recordNumber} +
+                              '&filter=' + ${filter} +
+                              '&keyword=' + ${keyword}}"
+                   th:text="${i}">page index</a>
+              </li>
+            </th:block>
           </th:block>
 
-          <th:block th:if="${page > 5 && page < totalPages - 4}">
-            <li
-              th:class="'page-item '+${page == i ? 'active' : ''}">
-              <a class="page-link"
-                 th:href="@{'/products' +
-                            '?page=' + ${page - 1} +
-                            '&sortField=' + ${sortField} +
-                            '&sortDir=' + ${totalPages - 5} +
-                            '&recordNumber=' + ${recordNumber} +
-                            '&filter=' + ${filter} +
-                            '&keyword=' + ${keyword}}">...</a>
-            </li>
+          <th:block th:if="${totalPages > 10}">
+            <th:block th:if="${page <= 5 || page >= totalPages - 4}">
+              <span th:each="i : ${#numbers.sequence(1, 5)}">
+                  <li th:class="'page-item ' + ${page == i ? 'active' : ''}">
+                      <a class="page-link"
+                         th:href="@{'/products' +
+                                    '?page=' + ${page - 1} +
+                                    '&sortField=' + ${i} +
+                                    '&sortDir=' + ${sortDir} +
+                                    '&recordNumber=' + ${recordNumber} +
+                                    '&filter=' + ${filter} +
+                                    '&keyword=' + ${keyword}}"
+                         th:text="${i}">page index</a>
+                  </li>
+              </span>
 
-            <span th:each="i : ${#numbers.sequence(totalPages - 4, totalPages + 4)}">
-                <li class="page-item">
-                    <a class="page-link"
-                       th:href="@{'/products' +
-                                  '?page=' + ${page - 1} +
-                                  '&sortField=' + ${i} +
-                                  '&sortDir=' + ${sortDir} +
-                                  '&recordNumber=' + ${recordNumber} +
-                                  '&filter=' + ${filter} +
-                                  '&keyword=' + ${keyword}}"
-                       th:text="${i}">page index</a>
-                </li>
-            </span>
+              <li class="page-item">
+                <a class="page-link"
+                   th:href="@{'/products?page=6' +
+                              '&sortField=' + ${sortField} +
+                              '&sortDir=' + ${sortDir} +
+                              '&recordNumber=' + ${recordNumber} +
+                              '&filter=' + ${filter} +
+                              '&keyword=' + ${keyword}}">...</a>
+              </li>
 
-            <li
-              th:class="'page-item '+${page == i ? 'active' : ''}">
-              <a class="page-link"
-                 th:href="@{'/products' +
-                            '?page=' + ${totalPages + 1} +
-                            '&sortField=' + ${sortField} +
-                            '&sortDir=' + ${sortDir} +
-                            '&recordNumber=' + ${recordNumber} +
-                            '&filter=' + ${filter} +
-                            '&keyword=' + ${keyword}}">...</a>
-            </li>
+              <span class="page-item" th:each="i : ${#numbers.sequence(totalPages - 4, page)}">
+                  <li th:class="'page-item '+${page == i ? 'active' : ''}">
+                      <a class="page-link"
+                         th:href="@{'/products' +
+                                    '?page=' + ${page - 1} +
+                                    '&sortField=' + ${sortField} +
+                                    '&sortDir=' + ${sortDir} +
+                                    '&recordNumber=' + ${recordNumber} +
+                                    '&filter=' + ${filter} +
+                                    '&keyword=' + ${keyword}}"
+                         th:text="${i}">page index</a>
+                  </li>
+              </span>
+            </th:block>
+
+            <th:block th:if="${page > 5 && page < totalPages - 4}">
+              <li
+                th:class="'page-item '+${page == i ? 'active' : ''}">
+                <a class="page-link"
+                   th:href="@{'/products' +
+                              '?page=' + ${page - 1} +
+                              '&sortField=' + ${sortField} +
+                              '&sortDir=' + ${totalPages - 5} +
+                              '&recordNumber=' + ${recordNumber} +
+                              '&filter=' + ${filter} +
+                              '&keyword=' + ${keyword}}">...</a>
+              </li>
+
+              <span th:each="i : ${#numbers.sequence(totalPages - 4, totalPages + 4)}">
+                  <li class="page-item">
+                      <a class="page-link"
+                         th:href="@{'/products' +
+                                    '?page=' + ${page - 1} +
+                                    '&sortField=' + ${i} +
+                                    '&sortDir=' + ${sortDir} +
+                                    '&recordNumber=' + ${recordNumber} +
+                                    '&filter=' + ${filter} +
+                                    '&keyword=' + ${keyword}}"
+                         th:text="${i}">page index</a>
+                  </li>
+              </span>
+
+              <li
+                th:class="'page-item '+${page == i ? 'active' : ''}">
+                <a class="page-link"
+                   th:href="@{'/products' +
+                              '?page=' + ${totalPages + 1} +
+                              '&sortField=' + ${sortField} +
+                              '&sortDir=' + ${sortDir} +
+                              '&recordNumber=' + ${recordNumber} +
+                              '&filter=' + ${filter} +
+                              '&keyword=' + ${keyword}}">...</a>
+              </li>
+            </th:block>
           </th:block>
-        </th:block>
 
-        <!-- Next -->
-        <li th:class="'page-item '+${page >= totalPages || totalPages == 0 ? 'disabled' : ''}">
-          <a class="page-link"
-             th:href="@{'/products' +
-                        '?page=' + ${page + 1} +
-                        '&sortField=' + ${sortField} +
-                        '&sortDir=' + ${sortDir} +
-                        '&recordNumber=' + ${recordNumber} +
-                        '&filter=' + ${filter} +
-                        '&keyword=' + ${keyword}}">
-            <i class="fas fa-angle-double-right"></i>
-          </a>
-        </li>
-        <!-- Last -->
-        <li th:class="'page-item '+${page >= totalPages  || totalPages == 0 ? 'disabled' : ''}">
-          <a class="page-link"
-             th:href="@{'/products' +
-                        '?page=totalPages' +
-                        '&sortField=' + ${sortField} +
-                        '&sortDir=' + ${sortDir} +
-                        '&recordNumber=' + ${recordNumber} +
-                        '&filter=' + ${filter} +
-                        '&keyword=' + ${keyword}}">
-            <i class="fas fa-angle-right"></i>
-          </a>
-        </li>
-      </ul>
+          <!-- Next -->
+          <li th:class="'page-item '+${page >= totalPages || totalPages == 0 ? 'disabled' : ''}">
+            <a class="page-link"
+               th:href="@{'/products' +
+                          '?page=' + ${page + 1} +
+                          '&sortField=' + ${sortField} +
+                          '&sortDir=' + ${sortDir} +
+                          '&recordNumber=' + ${recordNumber} +
+                          '&filter=' + ${filter} +
+                          '&keyword=' + ${keyword}}">
+              <i class="fas fa-angle-double-right"></i>
+            </a>
+          </li>
+          <!-- Last -->
+          <li th:class="'page-item '+${page >= totalPages  || totalPages == 0 ? 'disabled' : ''}">
+            <a class="page-link"
+               th:href="@{'/products' +
+                          '?page=totalPages' +
+                          '&sortField=' + ${sortField} +
+                          '&sortDir=' + ${sortDir} +
+                          '&recordNumber=' + ${recordNumber} +
+                          '&filter=' + ${filter} +
+                          '&keyword=' + ${keyword}}">
+              <i class="fas fa-angle-right"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
-</div>
 
-<th:block layout:fragment="script">
-  <script th:src="@{/js/product.js}"></script>
-</th:block>
+  <th:block layout:fragment="script">
+    <script th:src="@{/js/product.js}"></script>
+  </th:block>
 </body>
 </html>
