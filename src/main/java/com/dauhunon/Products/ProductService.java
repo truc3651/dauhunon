@@ -47,6 +47,11 @@ public class ProductService {
     return productRepo.listAllWherePublished(keyword, published, page);
   }
 
+  public Product get(Long id) {
+    Product product = productRepo.findById(id).orElseThrow(() -> new IllegalStateException("Product non exists"));
+    return product;
+  }
+
   public Product save(Long brandId, Long id, String name, String thumbnail, String slug, float price, int total, float discount, boolean published) {
     Brand brand = brandRepo.findById(brandId).orElseThrow(() -> new IllegalStateException("Product non exists"));
 
@@ -66,11 +71,6 @@ public class ProductService {
     Product product = productRepo.findById(id).orElseThrow(() -> new IllegalStateException("Product non exists"));
     productRepo.deleteById(id);
 
-    return product;
-  }
-
-  public Product get(Long id) {
-    Product product = productRepo.findById(id).orElseThrow(() -> new IllegalStateException("Product non exists"));
     return product;
   }
 

@@ -74,4 +74,16 @@ public class Product extends BaseEntity implements Serializable {
     this.imageUrl = imageUrl;
     this.total = total;
   }
+
+  public Product(Brand brand, Long id, String name, String thumbnail, String slug, float price, int total, float discount, boolean published) {
+    this.brand = brand;
+    this.setId(id);
+    this.name = name;
+    this.thumbnail = thumbnail;
+    this.slug = slug;
+    this.price = price;
+    this.total = total;
+    this.discount = discount;
+    this.published = published;
+  }
 }

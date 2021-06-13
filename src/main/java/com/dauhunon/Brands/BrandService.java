@@ -31,7 +31,6 @@ public class BrandService {
     String filter,
     String keyword
   ){
-
     Sort sort = Sort.by(sortField);
     sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
 
@@ -42,6 +41,10 @@ public class BrandService {
 
     boolean published = Boolean.parseBoolean(filter);
     return brandRepo.listAllWherePublished(keyword, published, page);
+  }
+
+  public Brand getById(Long brandId) {
+    return brandRepo.findById(brandId).orElseThrow(() -> new IllegalStateException("Brand non exists"));
   }
 
   public Brand save(Long id, String name, int totalProducts, String thumbnail, boolean published) {

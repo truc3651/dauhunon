@@ -9,12 +9,17 @@
 </head>
 <body class="bg-white">
   <div layout:fragment="content">
-    <div th:if="${param.logout}" class="alert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
+    <div th:if="${param.logout != null or param.error != null}"
+      class="alert d-flex align-items-center alert-dismissible fade show"
+      th:classappend="${param.logout != null ? 'alert-success' : 'alert-danger'}"
+      role="alert">
       <div class="me-2">
-        <i class="fas fa-check-circle fa-lg"></i>
+        <i class="fas fa-check-circle fa-lg" th:if="${param.logout}"></i>
+        <i class="fas fa-exclamation-triangle fa-lg" th:if="${param.error}"></i>
       </div>
       <div>
-        <strong>You've just logged out success</strong>
+        <strong th:if="${param.logout}">You've just logged out success</strong>
+        <strong th:if="${param.error}">The email or password may be not correct</strong>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     </div>

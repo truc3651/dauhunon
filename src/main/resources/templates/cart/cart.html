@@ -11,16 +11,50 @@
 <div layout:fragment="content">
   <!-- Main content -->
   <div class="container mx-5 px-5 my-4" id="products">
-    <div class="row">
-      <h4 class="my-3">Cart (<span id="totalProducts"></span> items)</h4>
+    <div th:unless="${cart != null}" class="bg-light text-center p-5">
+      Cart empty
+    </div>
+    <div th:if="${cart != null}" class="row">
+      <h4 class="my-3">Cart (<span id="totalProducts" th:text="${cart.totalProducts}"></span> items)</h4>
       <div class="col-8" id="productsContainer">
+        <div class="d-flex justify-content-between mb-3" th:each="cartItem : ${cart.cartItems}">
+          <div>
+            <img class="rounded shadow" th:src="${cartItem.product.imageUrl}" width="140" height="160" alt="">
+          </div>
+          <div>
+            <h4 th:text="${cartItem.product.thumbnail}"></h4>
+            <div class="d-flex my-3">
+              <form action="/cart/remove?isAll=true" method="post">
+                <input type="hidden" name="id" th:value="${cartItem.id}">
+                <button class="btn btn-sm btn-danger me-2">Remove item</button>
+              </form>
+              <button class="btn btn-sm btn-warning">Move to wish list</button>
+            </div>
+          </div>
+          <div class="d-flex align-items-end flex-column bd-highlight" style="height: 160px;">
+            <div class="input-group input-group-sm w-50">
+              <form action="/cart/remove" method="post">
+                <input type="hidden" name="id" th:value="${cartItem.id}">
+                <button class="btn btn-sm btn-outline-secondary input-group-text"
+                        th:attr="disabled=${cartItem.totalProducts <=1}">-</button>
+              </form>
+              <input type="text" th:value="${cartItem.totalProducts}" class="form-control text-center" disabled>
+              <form action="/cart/add" method="post">
+                <input type="hidden" name="id" th:value="${cartItem.product.id}">
+                <button class="btn btn-sm btn-outline-secondary input-group-text"
+                        th:attr="disabled=${cartItem.totalProducts >= cartItem.product.total}">+</button>
+              </form>
+            </div>
+            <h5 class="mt-auto" th:text="${cartItem.totalPrice}"></h5>
+          </div>
+        </div>
       </div>
       <div class="col-4">
         <h4>The total amount of</h4>
         <table class="w-100">
           <tr>
             <td class="py-2">Temporary amount</td>
-            <td class="float-end" id="temporaryAmount">107.95</td>
+            <td class="float-end" id="temporaryAmount" th:text="${cart.totalPrice}"></td>
           </tr>
           <tr class="my-2">
             <td class="py-2">Shipping</td>
@@ -44,7 +78,9 @@
           </tr>
         </table>
         <div class="d-grid gap-2 my-2 ">
-          <button class="btn btn-primary ">Go to checkout</button>
+          <form action="/cart/checkout" method="post" class="w-100">
+            <button class="btn btn-primary w-100">Checkout</button>
+          </form>
           <button class="btn d-flex justify-content-between " data-bs-toggle="collapse " data-bs-target="#discount " aria-expanded="false " aria-controls="discount ">
             <div>Add a discount code (Optional)</div>
             <div>

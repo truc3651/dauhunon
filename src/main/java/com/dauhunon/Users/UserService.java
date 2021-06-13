@@ -8,6 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService {
   private UserRepo userRepo;
@@ -17,6 +19,14 @@ public class UserService {
   public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
     this.userRepo = userRepo;
     this.passwordEncoder = passwordEncoder;
+  }
+
+  public User getUserByUsername(String username) {
+    return userRepo.findByUsername(username);
+  }
+
+  public User getUserByEmail(String email) {
+    return userRepo.findByEmail(email);
   }
 
   public boolean isAuthenticated() {
@@ -31,20 +41,15 @@ public class UserService {
     return userDetail.getUser();
   }
 
-  public void save(User user) {
-//    User user = new User(email, username, fullName, phoneNumber);
-//    if(id != null) user.setId(id);
-    userRepo.save(user);
+  public void setLoggedInUserDetail(User user) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    MyUsersDetails userDetail = (MyUsersDetails) auth.getPrincipal();
+
+    userDetail.setUser(user);
   }
 
-  public User getUserByUsername(String username) {
-    try {
-      User user = userRepo.findByUsername(username);
-      return user;
-
-    } catch (Exception e) {
-      return null;
-    }
+  public void save(User user) {
+    userRepo.save(user);
   }
 
   public void assignImage(Long id, String imageUrl) {

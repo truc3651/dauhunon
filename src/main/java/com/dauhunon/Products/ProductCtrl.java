@@ -96,6 +96,16 @@ public class ProductCtrl {
     return new RedirectView("/products/", true);
   }
 
+  @GetMapping("/{id}")
+  public String viewDetailProduct(
+    @PathVariable ("id") Long id,
+    Model model
+  ) {
+    Product product = productService.get(id);
+    model.addAttribute("product", product);
+    return "products/detail";
+  }
+
   @ModelAttribute("filters")
   public Map<String, String> getFilters() {
     Map<String, String> filters = new HashMap<>();
@@ -105,16 +115,6 @@ public class ProductCtrl {
     filters.put("false", "un-published");
 
     return filters;
-  }
-
-  @GetMapping("/{id}")
-  public String viewDetailProduct(
-    @PathVariable ("id") Long id,
-    Model model
-  ) {
-    Product product = productService.get(id);
-    model.addAttribute("product", product);
-    return "products/detail";
   }
 
   @ModelAttribute("brands")

@@ -11,15 +11,12 @@ public class Const {
     put("api_secret", "8xQfarN3gHbWi0deJavzjZ7GzKA");
   }};
 
-  public static final int DEFAULT_CART_STATUS = 0;
-  public static final Map<Integer, String> CART_STATUSES = new HashMap<Integer, String>()
-  {{
-    put(0, "pending");
-    put(1, "cancel");
-    put(2, "reject");
-    put(3, "delivering");
-    put(4, "success");
-  }};
+  public static final String PENDING = "PENDING";
+  public static final String IN_PROCESS = "IN_PROCESS";
+  public static final String DELIVERING = "DELIVERING";
+  public static final String SUCCESS = "SUCCESS";
+  public static final String CANCEL = "CANCEL";
+  public static final String REJECT = "REJECT";
 
   public static final String EMPLOYEE = "EMPLOYEE";
   public static final String MANAGER = "MANAGER";

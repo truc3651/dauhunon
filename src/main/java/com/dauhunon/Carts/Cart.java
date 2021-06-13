@@ -1,5 +1,6 @@
 package com.dauhunon.Carts;
 
+import com.dauhunon.CartItems.CartItems;
 import com.dauhunon.Products.Product;
 import com.dauhunon.Users.User;
 import com.dauhunon.common.BaseEntity;
@@ -14,7 +15,9 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Entity
@@ -26,45 +29,104 @@ import java.util.Set;
 @Getter
 @Setter
 public class Cart extends BaseEntity implements Serializable {
-  @ManyToMany(fetch = FetchType.EAGER)
-  @JoinTable(
-    name="cart_product",
-    joinColumns = @JoinColumn(name = "cart_id"),
-    inverseJoinColumns = @JoinColumn(name = "product_id")
-  )
-  private Set<Product> products = new HashSet<>();
+//  @ManyToMany(fetch = FetchType.EAGER)
+//  @JoinTable(
+//    name="cart_product",
+//    joinColumns = @JoinColumn(name = "cart_id"),
+//    inverseJoinColumns = @JoinColumn(name = "product_id")
+//  )
+//  private Set<Product> products = new HashSet<>();
+//
+//  @ManyToMany(fetch = FetchType.EAGER)
+//  @JoinTable(
+//    name="cart_product",
+//    joinColumns = @JoinColumn(name = "cart_id"),
+//    inverseJoinColumns = @JoinColumn(name = "total")
+//  )
+//
+//  @ManyToOne(optional = false)
+//  @JoinColumn(name="total")
+//  @JsonIgnore
+//  private Map<Long, Integer> totalProduct = new HashMap<>();
+//
+//  @ManyToOne(optional = false)
+//  @JoinColumn(name="user_id", referencedColumnName = "id")
+//  @JsonIgnore
+//  private User user;
+//
+//  private int totalProducts;
+//
+//  private float totalPrice;
+//
+//  private float shippingPrice;
+//
+//  @Column(columnDefinition = "varchar(20) default '" + Const.PENDING + "'")
+//  private String status;
+//
+//  public void addProduct(Product product) {
+//    this.products.add(product);
+////    int oldTotal = this.totalProduct.get(product.getId());
+////    int total = Integer.valueOf(oldTotal) != null && oldTotal > 1 ? oldTotal+=1 : 1;
+////    this.totalProduct.put(product.getId(), total);
+//  }
+//
+//  public Cart(User user, int totalProducts, float totalPrice, float shippingPrice, String status) {
+//    this.user = user;
+//    this.totalProducts = totalProducts;
+//    this.totalPrice = totalPrice;
+//    this.shippingPrice = shippingPrice;
+//    this.status = status;
+//  }
+//
+//  public Cart(User user, int totalProducts, float totalPrice, float shippingPrice) {
+//    this.user = user;
+//    this.totalProducts = totalProducts;
+//    this.totalPrice = totalPrice;
+//    this.shippingPrice = shippingPrice;
+//  }
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name="user_id", referencedColumnName = "id")
+  @OneToMany(mappedBy = "cart", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JsonIgnore
+  private Set<CartItems> cartItems;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  private float total;
+  @Column(nullable = false)
+  private int totalProducts;
 
-  private float shippingPrice;
+  @Column(nullable = false)
+  private float totalPrice;
 
-  @Column(columnDefinition = "int default " + Const.DEFAULT_CART_STATUS)
-  private int status;
+  @Column(columnDefinition = "varchar(20) default '" + Const.PENDING + "'")
+  private String status;
 
-  public Cart(float total, float shippingPrice) {
-    this.total = total;
-    this.shippingPrice = shippingPrice;
-  }
-
-  public void addProduct(Product product) {
-    this.products.add(product);
-  }
-
-  public Cart(User user, float total, float shippingPrice, int status) {
+  public Cart(User user, int totalProducts, float totalPrice) {
     this.user = user;
-    this.total = total;
-    this.shippingPrice = shippingPrice;
-    this.status = status;
+    this.totalProducts = totalProducts;
+    this.totalPrice = totalPrice;
   }
 
-  public Cart(User user, float total, float shippingPrice) {
-    this.user = user;
-    this.total = total;
-    this.shippingPrice = shippingPrice;
-  }
+  //  public void addProduct(Product product) {
+//    this.products.add(product);
+////    int oldTotal = this.totalProduct.get(product.getId());
+////    int total = Integer.valueOf(oldTotal) != null && oldTotal > 1 ? oldTotal+=1 : 1;
+////    this.totalProduct.put(product.getId(), total);
+//  }
+//
+//  public Cart(User user, int totalProducts, float totalPrice, float shippingPrice, String status) {
+//    this.user = user;
+//    this.totalProducts = totalProducts;
+//    this.totalPrice = totalPrice;
+//    this.shippingPrice = shippingPrice;
+//    this.status = status;
+//  }
+//
+//  public Cart(User user, int totalProducts, float totalPrice, float shippingPrice) {
+//    this.user = user;
+//    this.totalProducts = totalProducts;
+//    this.totalPrice = totalPrice;
+//    this.shippingPrice = shippingPrice;
+//  }
 }

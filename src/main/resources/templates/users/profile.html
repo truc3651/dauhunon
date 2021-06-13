@@ -1,24 +1,33 @@
 <!DOCTYPE html>
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layouts/main">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
+  <title>Edit profile</title>
 </head>
 <body>
   <div layout:fragment="content">
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between mx-4">
       <div class="bg-light text-center p-3" style="height: 250px; width: 300px;">
-        <img class="rounded-circle"
-          th:src="${user.avatarUrl}"
-          alt="user_avatar" width="120" height="120">
-        <h5 class="mt-2" th:text="${user.fullName}"></h5>
-        <p th:text="${user.role}"></p>
+        <img id="previewImage" class="rounded-circle" th:src="${user.avatarUrl}"
+         alt="user_avatar" width="120" height="120" />
+        <h5 class="mt-2" sec:authentication="principal.user.fullName"></h5>
+        <p sec:authentication="principal.user.role"></p>
       </div>
+      <form class="bg-light w-100 ms-3 p-3"
+        th:object="${user}" action="/update-profile"
+        method="post" enctype="multipart/form-data"
+        onsubmit="return verifyRegister()"
+        id="registerForm" name="registerForm">
 
-      <form class="bg-light w-100 ms-3 p-3" th:object="${user}" action="/update-profile" method="post" onsubmit="return verifyRegister()" id="registerForm" name="registerForm">
+        <div class="mb-3">
+          <label for="image" class="form-label">Avatar</label>
+          <input class="form-control form-control-sm" id="image" name="image" type="file" />
+        </div>
+
         <div class="form-group mb-3">
           <label for="fullName">Fullname:</label>
           <input type="text" th:field="*{fullName}" class="form-control" />
@@ -48,17 +57,15 @@
           <small class="text-danger" id="passwordError"></small>
         </div>
 
-        <div class="form-group mb-3">
-          <label>Confirm password:</label>
-          <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" oninput="isPasswordMatched(this)" />
-          <small class="text-danger" id="confirmPasswordError"></small>
-        </div>
-
         <div class="form-group d-grid gap-2 mb-3">
-          <button type="submit" class="btn btn-primary btn-block">Submit</button>
+          <button type="submit" class="btn btn-primary btn-block">
+            Submit
+          </button>
         </div>
       </form>
     </div>
   </div>
+  <th:block layout:fragment="script">
+  </th:block>
 </body>
 </html>

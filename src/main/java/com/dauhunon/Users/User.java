@@ -28,9 +28,9 @@ import java.util.Set;
 @Getter
 @Setter
 public class User extends BaseEntity implements Serializable {
-  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-  @JsonIgnore
-  private Set<Cart> carts;
+//  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+//  @JsonIgnore
+//  private Set<Cart> carts;
 
   @Column(nullable = false, unique = true)
   private String email;

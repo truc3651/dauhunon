@@ -1,10 +1,8 @@
 package com.dauhunon.Users;
 
-import com.dauhunon.auth.MyUsersDetails;
 import com.dauhunon.utils.App;
 import com.dauhunon.utils.FileHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,13 +29,9 @@ public class UserCtrl {
 
   @GetMapping("profile")
   public String viewProfilePage(
-    Model model,
-    @AuthenticationPrincipal MyUsersDetails userDetail) {
+    Model model) {
 
-    User loggedInUser = userDetail.getUser();
-    if(loggedInUser == null) return "auth/login";
-
-    model.addAttribute("user", loggedInUser);
+    model.addAttribute("user", userService.getLoggedInUserDetail());
     return "users/profile";
   }
 
@@ -45,26 +39,27 @@ public class UserCtrl {
   public RedirectView editProfile(
     RedirectAttributes ra,
     @ModelAttribute("user") User editedLoggedInUser,
-    @RequestParam("image") MultipartFile multipartFile,
-    @AuthenticationPrincipal MyUsersDetails userDetail
+    @RequestParam("image") MultipartFile multipartFile
   ) throws IOException {
-    User loggedInUser = userDetail.getUser();
+    User loggedInUser = userService.getLoggedInUserDetail();
 
     if(!passwordEncoder.matches(editedLoggedInUser.getPassword(), loggedInUser.getPassword())){
       ra.addFlashAttribute(App.actionFailed, "Password is not correct");
       ra.addFlashAttribute("user", editedLoggedInUser);
-
       return new RedirectView("/profile", true);
     }
 
-    if(userService.isEmailExisted(editedLoggedInUser.getEmail())) {
+    User userByEmail = userService.getUserByEmail(editedLoggedInUser.getEmail());
+    if(userByEmail != null && !userByEmail.getId().equals(loggedInUser.getId())) {
       ra.addFlashAttribute(App.actionFailed, "Email provided is already in use");
-
+      ra.addFlashAttribute("user", editedLoggedInUser);
       return new RedirectView("/profile", true);
     }
 
-    editedLoggedInUser.setPassword(passwordEncoder.encode(editedLoggedInUser.getPassword()));
-    userService.save(editedLoggedInUser);
+    loggedInUser.setFullName(editedLoggedInUser.getFullName());
+    loggedInUser.setEmail(editedLoggedInUser.getEmail());
+    loggedInUser.setUsername(editedLoggedInUser.getUsername());
+    userService.save(loggedInUser);
 
     if(!multipartFile.isEmpty()) {
       FileHandler.deleteFile(editedLoggedInUser.getPublicId());
@@ -73,8 +68,9 @@ public class UserCtrl {
       String secureUrl = (String) uploadResult.get("secure_url");
 
       userService.assignImage(editedLoggedInUser.getId(), secureUrl);
+      loggedInUser.setAvatarUrl(secureUrl);
     }
-    userDetail.setUser(editedLoggedInUser);
+    userService.setLoggedInUserDetail(loggedInUser);
 
     ra.addFlashAttribute(App.actionSuccess, "Updated profile success");
     return new RedirectView("/profile", true);
@@ -82,35 +78,33 @@ public class UserCtrl {
 
   @GetMapping("/change-password")
   public String modifyPassword(
-    Model model,
-    @AuthenticationPrincipal MyUsersDetails userDetails) {
-
-    model.addAttribute("user", userDetails.getUser());
+    Model model
+  ) {
+    model.addAttribute("user", userService.getLoggedInUserDetail());
     return "users/change-password";
   }
 
   @PostMapping("/change-password")
   public RedirectView changePassword(
+    @RequestParam("password") String password,
+    @RequestParam("newPassword") String newPassword,
     HttpServletRequest req,
-    @AuthenticationPrincipal MyUsersDetails userDetail,
-    RedirectAttributes ra) throws ServletException {
+    RedirectAttributes ra
+  ) throws ServletException {
 
-    String newPwd = req.getParameter("newPwd");
-    String oldPwd = req.getParameter("oldPwd");
+    User loggedInUser = userService.getLoggedInUserDetail();
 
-    User loggedInUser = userDetail.getUser();
-
-    if(!passwordEncoder.matches(oldPwd, loggedInUser.getPassword())) {
-      ra.addFlashAttribute(App.actionFailed, "Old password is incorrect");
+    if(!passwordEncoder.matches(password, loggedInUser.getPassword())) {
+      ra.addFlashAttribute(App.actionFailed, "Password is not correct");
       return new RedirectView("/change-password", true);
     }
 
-    loggedInUser.setPassword(newPwd);
-    loggedInUser.setPassword(passwordEncoder.encode(loggedInUser.getPassword()));
+    loggedInUser.setPassword(passwordEncoder.encode(newPassword));
     userService.save(loggedInUser);
 
     req.logout();
     ra.addFlashAttribute(App.actionSuccess, "You've just changed your password success");
+
     return new RedirectView("/login", true);
   }
 }

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layouts/main">
+<head>
+  <meta charset="UTF-8">
+  <title>Orders</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <!-- Main content -->
+  <div class="bg-light py-3">
+    <h3 class="px-3">My orders</h3>
+
+    <table class="table table-striped py-4">
+      <thead>
+      <tr>
+        <th>Id</th>
+        <th>Checkout date</th>
+        <th>Product</th>
+        <th>Total</th>
+        <th>Status</th>
+      </tr>
+      </thead>
+      <tbody>
+      <th:block th:each="cart : ${carts}">
+        <tr th:each="cartItem : ${cart.cartItems}">
+          <td th:text="${cartItem.id}"></td>
+          <td th:text="${#temporals.format(cartItem.createdAt, 'dd/MM/yyyy')}"></td>
+          <td th:text="${cartItem.product.name}"></td>
+          <td th:text="'$ ' + ${cartItem.totalPrice}"></td>
+          <td th:text="${cart.status}"></td>
+        </tr>
+      </th:block>
+      </tbody>
+    </table>
+
+    <!-- PAGINATION -->
+<!--    <div class="d-flex justify-content-between px-3">-->
+<!--      <p>All records: [[${totalItems}]]</p>-->
+<!--      <ul class="pagination">-->
+<!--        &lt;!&ndash; First &ndash;&gt;-->
+<!--        <li th:class="'page-item '+${page == 1 ? 'disabled' : ''}">-->
+<!--          <a class="page-link"-->
+<!--             th:href="@{'/brands' +-->
+<!--                        '?page=1'+-->
+<!--                        '&sortField=' + ${sortField} +-->
+<!--                        '&sortDir=' + ${sortDir} +-->
+<!--                        '&recordNumber=' + ${recordNumber} +-->
+<!--                        '&filter=' + ${filter} +-->
+<!--                        '&keyword=' + ${keyword}}">-->
+<!--            <i class="fas fa-angle-left"></i>-->
+<!--          </a>-->
+<!--        </li>-->
+<!--        &lt;!&ndash; Previous &ndash;&gt;-->
+<!--        <li th:class="'page-item '+${page == 1 ? 'disabled' : ''}">-->
+<!--          <a class="page-link"-->
+<!--             th:href="@{'/brands' +-->
+<!--                        '?page=' + ${page - 1} +-->
+<!--                        '&sortField=' + ${sortField} +-->
+<!--                        '&sortDir=' + ${sortDir} +-->
+<!--                        '&recordNumber=' + ${recordNumber} +-->
+<!--                        '&filter=' + ${filter} +-->
+<!--                        '&keyword=' + ${keyword}}">-->
+<!--            <i class="fas fa-angle-double-left"></i>-->
+<!--          </a>-->
+<!--        </li>-->
+
+<!--        <th:block th:if="${totalPages == 0}">-->
+<!--          <li class="page-item active">-->
+<!--            <a class="page-link"-->
+<!--               th:href="@{'/brands' +-->
+<!--                          '?page=1' +-->
+<!--                          '&sortField=' + ${sortField} +-->
+<!--                          '&sortDir=' + ${sortDir} +-->
+<!--                          '&recordNumber=' + ${recordNumber} +-->
+<!--                          '&filter=' + ${filter} +-->
+<!--                          '&keyword=' + ${keyword}}"-->
+<!--               th:text="1">page index</a>-->
+<!--          </li>-->
+<!--        </th:block>-->
+
+<!--        <th:block th:if="${totalPages <= 10 && totalPages > 0}">-->
+<!--          <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">-->
+<!--            <li-->
+<!--              th:class="'page-item '+${page == i ? 'active' : ''}">-->
+<!--              <a class="page-link"-->
+<!--                 th:href="@{'/brands' +-->
+<!--                            '?page=' + ${i} +-->
+<!--                            '&sortField=' + ${sortField} +-->
+<!--                            '&sortDir=' + ${sortDir} +-->
+<!--                            '&recordNumber=' + ${recordNumber} +-->
+<!--                            '&filter=' + ${filter} +-->
+<!--                            '&keyword=' + ${keyword}}"-->
+<!--                 th:text="${i}">page index</a>-->
+<!--            </li>-->
+<!--          </th:block>-->
+<!--        </th:block>-->
+
+<!--        <th:block th:if="${totalPages > 10}">-->
+<!--          <th:block th:if="${page <= 5 || page >= totalPages - 4}">-->
+<!--            <span th:each="i : ${#numbers.sequence(1, 5)}">-->
+<!--                <li th:class="'page-item ' + ${page == i ? 'active' : ''}">-->
+<!--                    <a class="page-link"-->
+<!--                       th:href="@{'/brands' +-->
+<!--                                  '?page=' + ${page - 1} +-->
+<!--                                  '&sortField=' + ${i} +-->
+<!--                                  '&sortDir=' + ${sortDir} +-->
+<!--                                  '&recordNumber=' + ${recordNumber} +-->
+<!--                                  '&filter=' + ${filter} +-->
+<!--                                  '&keyword=' + ${keyword}}"-->
+<!--                       th:text="${i}">page index</a>-->
+<!--                </li>-->
+<!--            </span>-->
+
+<!--            <li class="page-item">-->
+<!--              <a class="page-link"-->
+<!--                 th:href="@{'/brands?page=6' +-->
+<!--                            '&sortField=' + ${sortField} +-->
+<!--                            '&sortDir=' + ${sortDir} +-->
+<!--                            '&recordNumber=' + ${recordNumber} +-->
+<!--                            '&filter=' + ${filter} +-->
+<!--                            '&keyword=' + ${keyword}}">...</a>-->
+<!--            </li>-->
+
+<!--            <span class="page-item" th:each="i : ${#numbers.sequence(totalPages - 4, page)}">-->
+<!--                <li th:class="'page-item '+${page == i ? 'active' : ''}">-->
+<!--                  <a class="page-link"-->
+<!--                     th:href="@{'/brands' +-->
+<!--                                '?page=' + ${page - 1} +-->
+<!--                                '&sortField=' + ${sortField} +-->
+<!--                                '&sortDir=' + ${sortDir} +-->
+<!--                                '&recordNumber=' + ${recordNumber} +-->
+<!--                                '&filter=' + ${filter} +-->
+<!--                                '&keyword=' + ${keyword}}"-->
+<!--                     th:text="${i}">page index</a>-->
+<!--                </li>-->
+<!--              </span>-->
+<!--          </th:block>-->
+
+<!--          <th:block th:if="${page > 5 && page < totalPages - 4}">-->
+<!--            <li-->
+<!--              th:class="'page-item '+${page == i ? 'active' : ''}">-->
+<!--              <a class="page-link"-->
+<!--                 th:href="@{'/brands' +-->
+<!--                            '?page=' + ${page - 1} +-->
+<!--                            '&sortField=' + ${sortField} +-->
+<!--                            '&sortDir=' + ${totalPages - 5} +-->
+<!--                            '&recordNumber=' + ${recordNumber} +-->
+<!--                            '&filter=' + ${filter} +-->
+<!--                            '&keyword=' + ${keyword}}">...</a>-->
+<!--            </li>-->
+
+<!--            <span th:each="i : ${#numbers.sequence(totalPages - 4, totalPages + 4)}">-->
+<!--                <li class="page-item">-->
+<!--                  <a class="page-link"-->
+<!--                     th:href="@{'/brands' +-->
+<!--                                '?page=' + ${page - 1} +-->
+<!--                                '&sortField=' + ${i} +-->
+<!--                                '&sortDir=' + ${sortDir} +-->
+<!--                                '&recordNumber=' + ${recordNumber} +-->
+<!--                                '&filter=' + ${filter} +-->
+<!--                                '&keyword=' + ${keyword}}"-->
+<!--                     th:text="${i}">page index</a>-->
+<!--                </li>-->
+<!--              </span>-->
+
+<!--            <li th:class="'page-item '+${page == i ? 'active' : ''}">-->
+<!--              <a class="page-link"-->
+<!--                 th:href="@{'/brands' +-->
+<!--                            '?page=' + ${totalPages + 1} +-->
+<!--                            '&sortField=' + ${sortField} +-->
+<!--                            '&sortDir=' + ${sortDir} +-->
+<!--                            '&recordNumber=' + ${recordNumber} +-->
+<!--                            '&filter=' + ${filter} +-->
+<!--                            '&keyword=' + ${keyword}}">...</a>-->
+<!--            </li>-->
+<!--          </th:block>-->
+<!--        </th:block>-->
+
+<!--        &lt;!&ndash; Next &ndash;&gt;-->
+<!--        <li th:class="'page-item '+${page == totalPages || totalPages == 0 ? 'disabled' : ''}">-->
+<!--          <a class="page-link"-->
+<!--             th:href="@{'/brands' +-->
+<!--                        '?page=' + ${page + 1} +-->
+<!--                        '&sortField=' + ${sortField} +-->
+<!--                        '&sortDir=' + ${sortDir} +-->
+<!--                        '&recordNumber=' + ${recordNumber} +-->
+<!--                        '&filter=' + ${filter} +-->
+<!--                        '&keyword=' + ${keyword}}">-->
+<!--            <i class="fas fa-angle-double-right"></i>-->
+<!--          </a>-->
+<!--        </li>-->
+<!--        &lt;!&ndash; Last &ndash;&gt;-->
+<!--        <li th:class="'page-item '+${page == totalPages || totalPages == 0 ? 'disabled' : ''}">-->
+<!--          <a class="page-link"-->
+<!--             th:href="@{'/brands' +-->
+<!--                        '?page=totalPages' +-->
+<!--                        '&sortField=' + ${sortField} +-->
+<!--                        '&sortDir=' + ${sortDir} +-->
+<!--                        '&recordNumber=' + ${recordNumber} +-->
+<!--                        '&filter=' + ${filter} +-->
+<!--                        '&keyword=' + ${keyword}}">-->
+<!--            <i class="fas fa-angle-right"></i>-->
+<!--          </a>-->
+<!--        </li>-->
+<!--      </ul>-->
+<!--    </div>-->
+  </div>
+</div>
+
+<th:block layout:fragment="script">
+</th:block>
+</body>
+</html>

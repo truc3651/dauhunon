@@ -59,9 +59,9 @@
             <b class="me-2" th:text="${product.price}"></b>
             <small class="bg-danger p-1 text-white rounded" th:text="${product.discount}"></small>
           </div>
-          <button
-            class="btn btn-warning"
-            th:data-thing="'/cart/' + ${product.id}">Buy now</button>
+          <form th:action="@{/cart/add(id=${product.id},total=1)}" method="post">
+            <button class="btn btn-warning">Buy now</button>
+          </form>
         </div>
       </div>
     </div>
